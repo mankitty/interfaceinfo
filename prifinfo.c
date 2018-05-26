@@ -15,7 +15,7 @@ int main(int argc,char **argv)
 	}
 
 	for (ifihead = ifi;ifi != NULL;ifi = ifi->ifi_next) {
-		printf("%s: <", ifi->ifi_name);
+		printf("%s: flags=%d<", ifi->ifi_name,ifi->ifi_flags);
 /* *INDENT-OFF* */
 		if (ifi->ifi_flags & IFF_UP)			printf("UP ");
 		if (ifi->ifi_flags & IFF_BROADCAST)		printf("BCAST ");
@@ -39,6 +39,9 @@ int main(int argc,char **argv)
 			printf("  broadcast addr: %s\n",Sock_ntop_host(sa, sizeof(*sa)));
 		if ((sa = ifi->ifi_dstaddr) != NULL)
 			printf("  destination addr: %s\n",Sock_ntop_host(sa, sizeof(*sa)));
+		if (ifi->ifi_haddr != NULL)
+			printf("  ether %02x:%02x:%02x:%02x:%02x:%02x\n",ifi->ifi_haddr[0],ifi->ifi_haddr[1],
+				ifi->ifi_haddr[2],ifi->ifi_haddr[3],ifi->ifi_haddr[4],ifi->ifi_haddr[5]);
 	}
 	free_ifi_info(ifihead);
 	return 0;

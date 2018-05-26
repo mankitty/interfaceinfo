@@ -64,31 +64,27 @@ get_ifi_info(int family,char *device)
 		}
 		memcpy(lastname,ifr->ifr_name,IFNAMSIZ);
 		ifrcopy = *ifr;
-		if (ioctl(sockfd,SIOCGIFFLAGS,&ifrcopy) == -1)
-			err_sys("ioctl SIOCGIFFLAGS failed");
 		
+		if (-1 == ioctl(sockfd,SIOCGIFFLAGS,&ifrcopy))
+			err_sys("ioctl SIOCGIFFLAGS failed");
 		flags = ifrcopy.ifr_flags;
+		
 		if ((flags & IFF_UP) == 0) {
-			continue;
+			//continue;
 		}
+		
 		ifi = calloc(1,sizeof(struct ifi_info));
 		if (ifi == NULL)
 			err_sys("calloc for ifi failed");
 		*ifipnext = ifi;
 		ifipnext = &ifi->ifi_next;
-		
-		ifi->ifi_flags = flags;
-		ifi->ifi_myflags = myflags;
 
-#if defined(SIOCGIFMTU) || defined(HAVE_STRUCT_IFREQ_IFR_MTU)
-		if (ioctl(sockfd,SIOCGIFMTU,&ifrcopy) == -1) {
-			printf("ioctl call SIOCGIFMTU failed,exit 1");
-			exit(1);
-		}
+		ifi->ifi_flags = flags;
+
+		if (-1 == ioctl(sockfd,SIOCGIFMTU,&ifrcopy))
+			err_sys("ioctl call SIOCGIFMTU failed !!!");
 		ifi->ifi_mtu = ifrcopy.ifr_mtu;
-#else
-		ifi->ifi_mtu = 0;
-#endif
+
 		memcpy(ifi->ifi_name, ifr->ifr_name, IFI_NAME);
 		ifi->ifi_name[IFI_NAME-1] = '\0';
 		if (sdlname == NULL || strcmp(sdlname,ifr->ifr_name) != 0)
@@ -104,39 +100,39 @@ get_ifi_info(int family,char *device)
 			continue;
 		sinptr = (struct sockaddr_in *) &ifr->ifr_addr;
 		ifi->ifi_addr = calloc(1, sizeof(struct sockaddr_in));
-		if (!ifi->ifi_addr) {
-			printf("calloc for ifi->ifi_addr failed,exit(1)");
-			exit(1);
-		}
+		if (!ifi->ifi_addr)
+			err_sys("calloc for ifi->ifi_addr failed !!!");
+		
 		memcpy(ifi->ifi_addr, sinptr, sizeof(struct sockaddr_in));
 
 		if (flags & IFF_BROADCAST) {
-			if (ioctl(sockfd, SIOCGIFBRDADDR, &ifrcopy) == -1) {
-				printf("ioctl call SIOCGIFBRDADDR failed,exit 1");
-				exit(1);
-			}
+			if (ioctl(sockfd, SIOCGIFBRDADDR, &ifrcopy) == -1)
+				err_sys("ioctl call SIOCGIFBRDADDR failed !!!");
+			
 			sinptr = (struct sockaddr_in *) &ifrcopy.ifr_broadaddr;
 			ifi->ifi_brdaddr = calloc(1, sizeof(struct sockaddr_in));
-			if (!ifi->ifi_brdaddr) {
-				printf("calloc for ifi->ifi_brdaddr failed,exit(1)");
-				exit(1);
-			}
+			if (!ifi->ifi_brdaddr)
+				err_sys("calloc for ifi->ifi_brdaddr failed !!!");
+			
 			memcpy(ifi->ifi_brdaddr, sinptr, sizeof(struct sockaddr_in));
 		}
 
 		if (flags & IFF_POINTOPOINT) {
-			if (ioctl(sockfd, SIOCGIFDSTADDR, &ifrcopy) == -1) {
-				printf("ioctl call SIOCGIFDSTADDR failed,exit 1");
-				exit(1);
-			}
+			if (ioctl(sockfd, SIOCGIFDSTADDR, &ifrcopy) == -1)
+				err_sys("ioctl call SIOCGIFDSTADDR failed !!!");
+			
 			sinptr = (struct sockaddr_in *) &ifrcopy.ifr_dstaddr;
 			ifi->ifi_dstaddr = calloc(1, sizeof(struct sockaddr_in));
-			if (!ifi->ifi_dstaddr) {
-				printf("calloc for ifi->ifi_dstaddr failed,exit(1)");
-				exit(1);
-			}
+			if (!ifi->ifi_dstaddr)
+				err_sys("calloc for ifi->ifi_dstaddr failed !!!");
+			
 			memcpy(ifi->ifi_dstaddr, sinptr, sizeof(struct sockaddr_in));
 		}
+		if (-1 == ioctl(sockfd,SIOCGIFHWADDR,&ifrcopy))
+			err_sys("ioctl call SIOCGIFHWADDR failed !!!");
+		memcpy(ifi->ifi_haddr,ifrcopy.ifr_hwaddr.sa_data,IFI_HADDR);
+		//unsigned char* hw=ifrcopy.ifr_hwaddr.sa_data;  
+        //printf("SIOCGIFHWADDR:%02x:%02x:%02x:%02x:%02x:%02x\n",hw[0],hw[1],hw[2],hw[3],hw[4],hw[5]);  
 	}
 	free(buf);
 	return (ifihead);

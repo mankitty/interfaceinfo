@@ -17,7 +17,7 @@
 #define	MAXLINE		4096	/* max text line length */
 
 #define IFI_NAME 16		/* IFNAMSIZ */
-#define IFI_HADDR 8
+#define IFI_HADDR 6
 
 struct ifi_info {
 	char	ifi_name[IFI_NAME];
