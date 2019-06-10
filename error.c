@@ -1,4 +1,4 @@
-#include "unpifi.h"
+#include "prifinfo.h"
 
 int		daemon_proc;		/* set nonzero by daemon_init() */
 

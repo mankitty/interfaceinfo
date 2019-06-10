@@ -42,6 +42,12 @@ const char      *inet_ntop(int, const void *, char *, size_t);
 #endif
 
 struct ifi_info *get_ifi_info(int ,char *);
-void free_ifi_info(struct ifi_info *);
-
+extern void free_ifi_info(struct ifi_info *);
+extern void err_ret(const char *fmt, ...);
+extern void err_sys(const char *fmt, ...);
+extern void err_dump(const char *fmt, ...);
+extern void err_msg(const char *fmt, ...);
+extern void err_quit(const char *fmt, ...);
+extern char *sock_ntop_host(const struct sockaddr *sa, socklen_t salen);
+extern char *Sock_ntop_host(const struct sockaddr *sa, socklen_t salen);
 #endif

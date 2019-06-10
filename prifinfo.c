@@ -1,4 +1,5 @@
-#include "unpifi.h"
+#include "prifinfo.h"
+
 int main(int argc,char **argv)
 {
 	int i;
